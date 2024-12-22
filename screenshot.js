@@ -1,5 +1,6 @@
 const puppeteer = require("puppeteer");
 const path = require("path");
+const fs = require("fs");
 
 (async () => {
   const browser = await puppeteer.launch({
@@ -23,6 +24,9 @@ const path = require("path");
     path: "assets/screenshot.png",
     fullPage: true, // Enable full-page screenshot
   });
+
+  // also copy the file to src folder
+  fs.copyFileSync("assets/screenshot.png", "src/screenshot.png");
 
   await browser.close();
 })();
