@@ -5,33 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script src="https://cdn.tailwindcss.com"></script>
     <title>Holiday Calendar</title>
-    <style>
-      .pulse {
-        animation: pulse 1.5s infinite;
-      }
-
-      @keyframes pulse {
-        0% {
-          box-shadow: 0 0 0 rgba(0, 0, 0, 0);
-        }
-        50% {
-          box-shadow: 0 0 12px rgba(255, 223, 0, 0.7);
-        }
-        100% {
-          box-shadow: 0 0 0 rgba(0, 0, 0, 0);
-        }
-      }
-    </style>
   </head>
   <body class="bg-gradient-to-br from-blue-100 via-blue-200 to-blue-300 font-sans antialiased min-h-screen">
-    <div class="container mx-auto px-4 py-6 sm:px-6 lg:px-8">
-      <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-center text-blue-900 mb-8 sm:mb-12">
-        Holiday Calendar 2025
+    <div class="container mx-auto px-4 py-8">
+      <h1 class="text-3xl sm:text-5xl font-extrabold text-center text-blue-900 mb-12 drop-shadow-md">
+        Holiday Calendar (Dec 2024 – Jan 2026)
       </h1>
-      <div id="calendar" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8"></div>
+      <div id="calendar" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Month cards will be appended here via JavaScript -->
+      </div>
     </div>
 
     <script>
+      // Original data with select months
       const holidays = [
         {
           month: "December 2024",
@@ -143,92 +129,135 @@
           month: "January 2026",
           days: [{ day: 3, type: "event" }],
         },
+        {
+          month: "February 2026",
+          days: [{ day: 12, type: "holiday", description: "Union Day" }],
+        },
       ];
 
-      const renderCalendar = (holidays) => {
+      // Build a comprehensive list of months from Dec 2024 to Jan 2026
+      function buildAllMonths() {
+        const start = new Date(2024, 11, 1); // December 1, 2024
+        const end = new Date(2026, 1, 1); // February 1, 2026
+        const allMonths = [];
+
+        while (start <= end) {
+          const monthName = start.toLocaleString("default", { month: "long" });
+          const year = start.getFullYear();
+          const monthString = `${monthName} ${year}`;
+
+          // Check if our 'holidays' array has data for this month
+          const found = holidays.find((m) => m.month === monthString);
+          if (found) {
+            allMonths.push(found);
+          } else {
+            allMonths.push({
+              month: monthString,
+              days: [],
+            });
+          }
+
+          // Move to next month
+          start.setMonth(start.getMonth() + 1);
+        }
+
+        return allMonths;
+      }
+
+      function renderCalendar(monthData) {
         const calendarContainer = document.getElementById("calendar");
 
-        holidays.forEach((month) => {
+        monthData.forEach((monthObj) => {
+          // Create month card
           const monthCard = document.createElement("div");
-          monthCard.className =
-            "bg-white shadow-md hover:shadow-lg transform hover:scale-105 transition-all rounded-lg p-4 sm:p-6";
+          monthCard.className = `
+            bg-white rounded-lg p-6 shadow-lg
+            hover:shadow-xl
+          `;
 
+          // Month Title
           const title = document.createElement("h2");
-          title.className = "text-lg sm:text-xl font-bold text-gray-700 mb-4 sm:mb-6";
-          title.textContent = month.month;
-
+          title.className = "text-xl font-bold text-gray-800 mb-4";
+          title.textContent = monthObj.month;
           monthCard.appendChild(title);
 
+          // Grid container
           const grid = document.createElement("div");
-          grid.className = "grid grid-cols-7 gap-2 sm:gap-3";
+          grid.className = "grid grid-cols-7 gap-2 text-center";
 
           // Weekday headers
           ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].forEach((day) => {
             const header = document.createElement("div");
-            header.className = "text-xs sm:text-sm text-gray-500 font-semibold text-center uppercase";
+            header.className = "text-xs font-semibold uppercase text-gray-500 tracking-wide";
             header.textContent = day;
             grid.appendChild(header);
           });
 
-          // Extract month and year
-          const [monthName, year] = month.month.split(" ");
+          // Figure out month & year from string
+          const [monthName, year] = monthObj.month.split(" ");
           const monthIndex = new Date(`${monthName} 1, ${year}`).getMonth();
+          const currentYear = parseInt(year, 10);
 
-          // Create a map of special days for easier lookup
+          // Map of special days
           const specialDays = new Map();
-          month.days.forEach((d) => {
+          monthObj.days.forEach((d) => {
             specialDays.set(d.day, d);
           });
 
-          // Get the number of days in the month
-          const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
+          // Calculate days in month
+          const daysInMonth = new Date(currentYear, monthIndex + 1, 0).getDate();
+
+          // Alignment offset (what day of the week the month starts on)
+          const firstDay = new Date(currentYear, monthIndex, 1).getDay();
 
           // Add empty slots for alignment
-          const firstDay = new Date(year, monthIndex, 1).getDay();
           for (let i = 0; i < firstDay; i++) {
             const emptySlot = document.createElement("div");
             grid.appendChild(emptySlot);
           }
 
-          // Render days
+          // Populate each day
           for (let day = 1; day <= daysInMonth; day++) {
             const specialDay = specialDays.get(day);
             const dayElement = document.createElement("div");
+            const isWeekend = new Date(currentYear, monthIndex, day).getDay() in { 0: 1, 6: 1 };
 
-            dayElement.className =
-              "text-xs sm:text-sm font-medium rounded-lg flex items-center justify-center h-10 sm:h-12 shadow-md transition-transform hover:scale-110";
-
-            const currentDate = new Date(year, monthIndex, day);
-            const isWeekend = currentDate.getDay() === 0 || currentDate.getDay() === 6; // Sunday or Saturday
+            // Base classes
+            let dayClasses = `
+              flex items-center justify-center
+              w-full h-10 sm:h-12
+              rounded-md font-medium
+            `;
 
             if (specialDay) {
               if (specialDay.type === "holiday") {
-                dayElement.classList.add("bg-green-500", "text-white", "pulse");
+                dayClasses += " bg-green-500 text-white";
                 dayElement.title = specialDay.description || "Holiday";
               } else if (specialDay.type === "event") {
-                dayElement.classList.add("bg-red-500", "text-white", "shadow-lg");
+                dayClasses += " bg-red-500 text-white";
                 dayElement.title = specialDay.description || "Event";
               }
               dayElement.textContent = specialDay.day;
             } else {
               if (isWeekend) {
-                dayElement.classList.add("bg-blue-300", "text-white", "shadow");
-                dayElement.textContent = day;
+                dayClasses += " bg-blue-300 text-white";
               } else {
-                dayElement.textContent = day;
-                dayElement.classList.add("bg-gray-200", "text-gray-600", "hover:bg-gray-300");
+                dayClasses += " bg-gray-200 text-gray-700 hover:bg-gray-300";
               }
+              dayElement.textContent = day;
             }
 
+            dayElement.className = dayClasses;
             grid.appendChild(dayElement);
           }
 
           monthCard.appendChild(grid);
           calendarContainer.appendChild(monthCard);
         });
-      };
+      }
 
-      renderCalendar(holidays);
+      const allMonthData = buildAllMonths();
+      renderCalendar(allMonthData);
     </script>
   </body>
 </html>
