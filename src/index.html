@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Holiday Calendar</title>
+    <style>
+      .pulse {
+        animation: pulse 1.5s infinite;
+      }
+
+      @keyframes pulse {
+        0% {
+          box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+        }
+        50% {
+          box-shadow: 0 0 12px rgba(255, 223, 0, 0.7);
+        }
+        100% {
+          box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+        }
+      }
+    </style>
+  </head>
+  <body class="bg-gradient-to-br from-blue-100 via-blue-200 to-blue-300 font-sans antialiased min-h-screen">
+    <div class="container mx-auto px-4 py-6 sm:px-6 lg:px-8">
+      <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-center text-blue-900 mb-8 sm:mb-12">
+        Holiday Calendar 2024-2025
+      </h1>
+      <div id="calendar" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8"></div>
+    </div>
+
+    <script>
+      const holidays = [
+        {
+          month: "December 2024",
+          days: [
+            { day: 28, type: "holiday" },
+            { day: 29, type: "holiday" },
+            { day: 30, type: "holiday" },
+            { day: 31, type: "holiday" },
+          ],
+        },
+        {
+          month: "January 2025",
+          days: [
+            { day: 1, type: "holiday" },
+            { day: 4, type: "holiday", description: "Independence Day" },
+            { day: 11, type: "event" },
+            { day: 29, type: "holiday", description: "Chinese New Year" },
+          ],
+        },
+        {
+          month: "February 2025",
+          days: [{ day: 12, type: "holiday", description: "Union Day" }],
+        },
+        {
+          month: "March 2025",
+          days: [
+            { day: 2, type: "holiday", description: "Peasant Day" },
+            { day: 12, type: "holiday" },
+            {
+              day: 13,
+              type: "holiday",
+              description: "Full Moon Day of Tabaung",
+            },
+            { day: 14, type: "holiday" },
+            { day: 15, type: "holiday" },
+            { day: 16, type: "holiday" },
+            { day: 22, type: "event" },
+            { day: 27, type: "holiday", description: "Armed Forces Day" },
+            { day: 29, type: "event" },
+          ],
+        },
+        {
+          month: "April 2025",
+          days: [
+            { day: 13, type: "holiday", description: "Thingyan Holidays" },
+            { day: 14, type: "holiday", description: "Thingyan Holidays" },
+            { day: 15, type: "holiday", description: "Thingyan Holidays" },
+            { day: 16, type: "holiday", description: "Thingyan Holidays" },
+            { day: 17, type: "holiday", description: "Thingyan Holidays" },
+            { day: 18, type: "holiday", description: "Thingyan Holidays" },
+            { day: 19, type: "holiday", description: "Thingyan Holidays" },
+            { day: 20, type: "holiday", description: "Thingyan Holidays" },
+            { day: 21, type: "holiday", description: "Thingyan Holidays" },
+          ],
+        },
+        {
+          month: "May 2025",
+          days: [
+            { day: 1, type: "holiday", description: "Labour Day" },
+            {
+              day: 11,
+              type: "holiday",
+              description: "Full Moon Day of Kasone",
+            },
+          ],
+        },
+        {
+          month: "July 2025",
+          days: [
+            { day: 9, type: "holiday", description: "Full Moon Day of Warso" },
+            { day: 19, type: "holiday", description: "Martyrs' Day" },
+          ],
+        },
+        {
+          month: "October 2025",
+          days: [
+            { day: 5, type: "holiday", description: "Thadingyut Holidays" },
+            { day: 6, type: "holiday", description: "Thadingyut Holidays" },
+            { day: 7, type: "holiday", description: "Thadingyut Holidays" },
+          ],
+        },
+        {
+          month: "November 2025",
+          days: [
+            { day: 1, type: "holiday" },
+            { day: 2, type: "holiday" },
+            { day: 3, type: "holiday" },
+            {
+              day: 4,
+              type: "holiday",
+              description: "Full Moon Day of Tasaungmone",
+            },
+            { day: 8, type: "event" },
+            { day: 14, type: "holiday", description: "National Day" },
+          ],
+        },
+        {
+          month: "December 2025",
+          days: [
+            { day: 19, type: "holiday", description: "Karen's New Year" },
+            { day: 25, type: "holiday" },
+            { day: 26, type: "holiday" },
+            { day: 27, type: "holiday" },
+            { day: 28, type: "holiday" },
+          ],
+        },
+        {
+          month: "January 2026",
+          days: [{ day: 3, type: "event" }],
+        },
+      ];
+
+      const renderCalendar = (holidays) => {
+        const calendarContainer = document.getElementById("calendar");
+
+        holidays.forEach((month) => {
+          const monthCard = document.createElement("div");
+          monthCard.className =
+            "bg-white shadow-md hover:shadow-lg transform hover:scale-105 transition-all rounded-lg p-4 sm:p-6";
+
+          const title = document.createElement("h2");
+          title.className = "text-lg sm:text-xl font-bold text-gray-700 mb-4 sm:mb-6";
+          title.textContent = month.month;
+
+          monthCard.appendChild(title);
+
+          const grid = document.createElement("div");
+          grid.className = "grid grid-cols-7 gap-2 sm:gap-3";
+
+          // Weekday headers
+          ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].forEach((day) => {
+            const header = document.createElement("div");
+            header.className = "text-xs sm:text-sm text-gray-500 font-semibold text-center uppercase";
+            header.textContent = day;
+            grid.appendChild(header);
+          });
+
+          // Extract month and year
+          const [monthName, year] = month.month.split(" ");
+          const monthIndex = new Date(`${monthName} 1, ${year}`).getMonth();
+
+          // Create a map of special days for easier lookup
+          const specialDays = new Map();
+          month.days.forEach((d) => {
+            specialDays.set(d.day, d);
+          });
+
+          // Get the number of days in the month
+          const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
+
+          // Add empty slots for alignment
+          const firstDay = new Date(year, monthIndex, 1).getDay();
+          for (let i = 0; i < firstDay; i++) {
+            const emptySlot = document.createElement("div");
+            grid.appendChild(emptySlot);
+          }
+
+          // Render days
+          for (let day = 1; day <= daysInMonth; day++) {
+            const specialDay = specialDays.get(day);
+            const dayElement = document.createElement("div");
+
+            dayElement.className =
+              "text-xs sm:text-sm font-medium rounded-lg flex items-center justify-center h-10 sm:h-12 shadow-md transition-transform hover:scale-110";
+
+            const currentDate = new Date(year, monthIndex, day);
+            const isWeekend = currentDate.getDay() === 0 || currentDate.getDay() === 6; // Sunday or Saturday
+
+            if (specialDay) {
+              if (specialDay.type === "holiday") {
+                dayElement.classList.add("bg-green-500", "text-white", "pulse");
+                dayElement.title = specialDay.description || "Holiday";
+              } else if (specialDay.type === "event") {
+                dayElement.classList.add("bg-red-500", "text-white", "shadow-lg");
+                dayElement.title = specialDay.description || "Event";
+              }
+              dayElement.textContent = specialDay.day;
+            } else {
+              if (isWeekend) {
+                dayElement.classList.add("bg-blue-300", "text-white", "shadow");
+                dayElement.textContent = day;
+              } else {
+                dayElement.textContent = day;
+                dayElement.classList.add("bg-gray-200", "text-gray-600", "hover:bg-gray-300");
+              }
+            }
+
+            grid.appendChild(dayElement);
+          }
+
+          monthCard.appendChild(grid);
+          calendarContainer.appendChild(monthCard);
+        });
+      };
+
+      renderCalendar(holidays);
+    </script>
+  </body>
+</html>
