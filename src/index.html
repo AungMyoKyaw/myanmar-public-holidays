@@ -12,13 +12,25 @@
     <meta property="og:image" content="https://myanmar-public-holidays.pages.dev/screenshot.png" />
     <meta property="og:url" content="https://myanmar-public-holidays.pages.dev" />
     <meta property="og:type" content="website" />
+
+    <style>
+      /* Use Apple system fonts for a refined, modern look */
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        background-color: #f7f7f7;
+      }
+      /* Smooth transitions for interactive elements */
+      .transition-all {
+        transition: all 0.3s ease-in-out;
+      }
+    </style>
   </head>
-  <body class="bg-gradient-to-br from-blue-100 via-blue-200 to-blue-300 font-sans antialiased min-h-screen">
-    <div class="container mx-auto px-4 py-8">
-      <h1 class="text-3xl sm:text-5xl font-extrabold text-center text-blue-900 mb-12 drop-shadow-md">
+  <body class="antialiased min-h-screen">
+    <div class="container mx-auto px-6 py-10">
+      <h1 class="text-4xl sm:text-6xl font-bold text-center text-gray-800 mb-8 tracking-tight drop-shadow-sm">
         Myanmar Holiday Calendar 2025
       </h1>
-      <div id="calendar" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div id="calendar" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
         <!-- Month cards will be appended here via JavaScript -->
       </div>
     </div>
@@ -54,11 +66,7 @@
           days: [
             { day: 2, type: "holiday", description: "Peasant Day" },
             { day: 12, type: "holiday" },
-            {
-              day: 13,
-              type: "holiday",
-              description: "Full Moon Day of Tabaung",
-            },
+            { day: 13, type: "holiday", description: "Full Moon Day of Tabaung" },
             { day: 14, type: "holiday" },
             { day: 15, type: "holiday" },
             { day: 16, type: "holiday" },
@@ -85,11 +93,7 @@
           month: "May 2025",
           days: [
             { day: 1, type: "holiday", description: "Labour Day" },
-            {
-              day: 11,
-              type: "holiday",
-              description: "Full Moon Day of Kasone",
-            },
+            { day: 11, type: "holiday", description: "Full Moon Day of Kasone" },
           ],
         },
         {
@@ -113,11 +117,7 @@
             { day: 1, type: "holiday" },
             { day: 2, type: "holiday" },
             { day: 3, type: "holiday" },
-            {
-              day: 4,
-              type: "holiday",
-              description: "Full Moon Day of Tasaungmone",
-            },
+            { day: 4, type: "holiday", description: "Full Moon Day of Tasaungmone" },
             { day: 8, type: "event" },
             { day: 14, type: "holiday", description: "National Day" },
           ],
@@ -142,7 +142,7 @@
         },
       ];
 
-      // Build a comprehensive list of months from Dec 2024 to Jan 2026
+      // Build a comprehensive list of months from Dec 2024 to Feb 2026
       function buildAllMonths() {
         const start = new Date(2024, 11, 1); // December 1, 2024
         const end = new Date(2026, 1, 1); // February 1, 2026
@@ -171,24 +171,37 @@
         return allMonths;
       }
 
+      const currentDate = new Date();
+      const currentMonthName = currentDate.toLocaleString("default", { month: "long" });
+      const currentYear = currentDate.getFullYear();
+      const currentMonthString = `${currentMonthName} ${currentYear}`;
+
       function renderCalendar(monthData) {
         const calendarContainer = document.getElementById("calendar");
 
         monthData.forEach((monthObj) => {
-          // Create month card
+          // Create month card with refined styling
           const monthCard = document.createElement("div");
           monthCard.className = `
-            bg-white rounded-lg p-6 shadow-lg
-            hover:shadow-xl
+            relative bg-white rounded-lg p-6 shadow-md hover:shadow-xl transition-all
           `;
 
-          // Month Title
+          // Add a title for the month
           const title = document.createElement("h2");
           title.className = "text-xl font-bold text-gray-800 mb-4";
           title.textContent = monthObj.month;
           monthCard.appendChild(title);
 
-          // Grid container
+          // Highlight current month
+          if (monthObj.month === currentMonthString) {
+            monthCard.classList.add("border-2", "border-blue-500");
+            const currentBadge = document.createElement("span");
+            currentBadge.className = "absolute top-2 right-2 bg-blue-500 text-white text-xs px-2 py-1 rounded-full";
+            currentBadge.textContent = "Current";
+            monthCard.appendChild(currentBadge);
+          }
+
+          // Build the grid layout for weekdays and days
           const grid = document.createElement("div");
           grid.className = "grid grid-cols-7 gap-2 text-center";
 
@@ -200,54 +213,46 @@
             grid.appendChild(header);
           });
 
-          // Figure out month & year from string
           const [monthName, year] = monthObj.month.split(" ");
           const monthIndex = new Date(`${monthName} 1, ${year}`).getMonth();
-          const currentYear = parseInt(year, 10);
+          const currentYearInt = parseInt(year, 10);
 
-          // Map of special days
+          // Map special days for quick lookup
           const specialDays = new Map();
-          monthObj.days.forEach((d) => {
-            specialDays.set(d.day, d);
-          });
+          monthObj.days.forEach((d) => specialDays.set(d.day, d));
 
-          // Calculate days in month
-          const daysInMonth = new Date(currentYear, monthIndex + 1, 0).getDate();
+          const daysInMonth = new Date(currentYearInt, monthIndex + 1, 0).getDate();
+          const firstDay = new Date(currentYearInt, monthIndex, 1).getDay();
 
-          // Alignment offset (what day of the week the month starts on)
-          const firstDay = new Date(currentYear, monthIndex, 1).getDay();
-
-          // Add empty slots for alignment
+          // Empty slots for alignment
           for (let i = 0; i < firstDay; i++) {
             const emptySlot = document.createElement("div");
             grid.appendChild(emptySlot);
           }
 
-          // Populate each day
+          // Populate days with refined styling
           for (let day = 1; day <= daysInMonth; day++) {
             const specialDay = specialDays.get(day);
             const dayElement = document.createElement("div");
-            const isWeekend = new Date(currentYear, monthIndex, day).getDay() in { 0: 1, 6: 1 };
+            const weekday = new Date(currentYearInt, monthIndex, day).getDay();
+            const isWeekend = weekday === 0 || weekday === 6;
 
-            // Base classes
             let dayClasses = `
-              flex items-center justify-center
-              w-full h-10 sm:h-12
-              rounded-md font-medium
+              flex items-center justify-center w-full h-10 sm:h-12 rounded-md font-medium transition-transform
             `;
 
             if (specialDay) {
               if (specialDay.type === "holiday") {
-                dayClasses += " bg-green-500 text-white";
+                dayClasses += " bg-green-400 text-white";
                 dayElement.title = specialDay.description || "Holiday";
               } else if (specialDay.type === "event") {
-                dayClasses += " bg-red-500 text-white";
+                dayClasses += " bg-red-400 text-white";
                 dayElement.title = specialDay.description || "Event";
               }
               dayElement.textContent = specialDay.day;
             } else {
               if (isWeekend) {
-                dayClasses += " bg-blue-300 text-white";
+                dayClasses += " bg-gray-300 text-gray-800";
               } else {
                 dayClasses += " bg-gray-200 text-gray-700 hover:bg-gray-300";
               }
@@ -255,6 +260,9 @@
             }
 
             dayElement.className = dayClasses;
+            // Optional: add a subtle scale effect on hover for normal days
+            dayElement.addEventListener("mouseover", () => (dayElement.style.transform = "scale(1.05)"));
+            dayElement.addEventListener("mouseout", () => (dayElement.style.transform = "scale(1)"));
             grid.appendChild(dayElement);
           }
 
